@@ -27,16 +27,24 @@ def extract_max_page():
 
   return pages[-1]
 
+def extract_job(html):
+  title = html.find('a').text
+  link = html.find('a')['href']
+  company = html.find('div', {'class': 'vacancy-serp-item__meta-info-company'}).text
+  company = company.strip()
+  location = html.find('span', {'data-qa': 'vacancy-serp__vacancy-address'}).text
+  location = location.partition(',')[0]
+  return {'title': title, 'company': company, 'location': location, 'link': link}
+
 def extract_hh_jobs(last_page):
   jobs = []
-  # for page in range(last_page):
-  result = requests.get(f'{URL}&page=0', headers=HEADERS)
-  print(result.status_code)
-  soup = BeautifulSoup(result.text, 'html.parser')
-  results = soup.find_all('div', {'class': 'vacancy-serp-item'})
-  for result in results:
-    title = result.find('a').text
-    company = result.find('div', {'class': 'vacancy-serp-item__meta-info-company'}).find('a').text
-    print(company)
-
+  for page in range(last_page):
+    print(f'Parsign page № {page}')
+    result = requests.get(f'{URL}&page={page}', headers=HEADERS)
+    print(result.status_code)
+    soup = BeautifulSoup(result.text, 'html.parser')
+    results = soup.find_all('div', {'class': 'vacancy-serp-item'})
+    for result in results:
+      job = extract_job(result)
+      jobs.append(job)
   return jobs
