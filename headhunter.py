@@ -36,15 +36,20 @@ def extract_job(html):
   location = location.partition(',')[0]
   return {'title': title, 'company': company, 'location': location, 'link': link}
 
-def extract_hh_jobs(last_page):
+def extract_jobs(last_page):
   jobs = []
   for page in range(last_page):
-    print(f'Parsign page № {page}')
+    print(f'Headhunter: Parsign page № {page}')
     result = requests.get(f'{URL}&page={page}', headers=HEADERS)
-    print(result.status_code)
     soup = BeautifulSoup(result.text, 'html.parser')
     results = soup.find_all('div', {'class': 'vacancy-serp-item'})
     for result in results:
       job = extract_job(result)
       jobs.append(job)
+  return jobs
+
+
+def get_jobs():
+  max_page = extract_max_page()
+  jobs = extract_jobs(max_page)
   return jobs
